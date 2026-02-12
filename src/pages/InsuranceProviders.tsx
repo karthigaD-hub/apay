@@ -1,34 +1,47 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Shield, ExternalLink, ChevronRight } from "lucide-react";
+import { ArrowLeft, ExternalLink, ChevronRight } from "lucide-react";
 
 const providers = [
   {
     id: "indusind",
     name: "IndusInd Insurance",
-    description: "Comprehensive motor insurance with flexible coverage options and instant policy issuance.",
-    color: "apay-gradient",
+    description:
+      "Comprehensive motor insurance with flexible coverage options and instant policy issuance.",
     action: "internal" as const,
     path: "/indusind",
     badge: "Recommended",
+    logo: "public/logos/indusind.png",
   },
   {
     id: "zurich",
     name: "Zurich Kotak",
-    description: "General insurance solutions powered by Zurich Kotak partnership.",
-    color: "bg-secondary",
+    description:
+      "General insurance solutions powered by Zurich Kotak partnership.",
     action: "external" as const,
     url: "https://insureswift.zurichkotak.com/FIG-GENERAL/#/figpartnerlandingpage?vTokenId=S7D4P1Q",
     badge: null,
+    logo: "public/logos/zurich.png",
   },
   {
     id: "bajaj",
     name: "Bajaj Allianz",
-    description: "Trusted insurance from one of India's leading providers.",
-    color: "bg-primary",
+    description:
+      "Trusted insurance from one of India's leading providers.",
     action: "external" as const,
     url: "https://www.bajajallianz.com/",
     badge: null,
+    logo: "public/logos/bajaj.png",
+  },
+  {
+    id: "tataaig",
+    name: "TATA AIG",
+    description:
+      "Reliable insurance solutions from TATA Group with strong claim settlement ratio.",
+    action: "external" as const,
+    url: "https://taig.in/TAGINS/0d135ab",
+    badge: "Popular",
+    logo: "public/logos/tataaig.png",
   },
 ];
 
@@ -72,14 +85,20 @@ const InsuranceProviders = () => {
               onClick={() => handleProviderClick(provider)}
               className="w-full apay-card-hover p-5 flex items-center gap-4 text-left"
             >
-              <div
-                className={`w-14 h-14 rounded-2xl ${provider.color} text-primary-foreground flex items-center justify-center flex-shrink-0`}
-              >
-                <Shield className="w-7 h-7" />
+              {/* Logo */}
+              <div className="w-14 h-14 rounded-2xl bg-white shadow flex items-center justify-center flex-shrink-0 p-2">
+                <img
+                  src={provider.logo}
+                  alt={provider.name}
+                  className="object-contain w-full h-full"
+                />
               </div>
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-semibold text-foreground">{provider.name}</h3>
+                  <h3 className="text-base font-semibold text-foreground">
+                    {provider.name}
+                  </h3>
                   {provider.badge && (
                     <span className="text-[9px] font-bold bg-success text-success-foreground px-2 py-0.5 rounded-full">
                       {provider.badge}
@@ -90,6 +109,7 @@ const InsuranceProviders = () => {
                   {provider.description}
                 </p>
               </div>
+
               <div className="flex-shrink-0 text-muted-foreground">
                 {provider.action === "external" ? (
                   <ExternalLink className="w-5 h-5" />
