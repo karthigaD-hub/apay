@@ -11,7 +11,7 @@ const providers = [
     action: "internal" as const,
     path: "/indusind",
     badge: "Recommended",
-    logo: "public/logos/indusind.png",
+    logo: "/logos/indusind.png",
   },
   {
     id: "zurich",
@@ -21,17 +21,7 @@ const providers = [
     action: "external" as const,
     url: "https://insureswift.zurichkotak.com/FIG-GENERAL/#/figpartnerlandingpage?vTokenId=S7D4P1Q",
     badge: null,
-    logo: "public/logos/zurich.png",
-  },
-  {
-    id: "bajaj",
-    name: "Bajaj Allianz",
-    description:
-      "Trusted insurance from one of India's leading providers.",
-    action: "external" as const,
-    url: "https://www.bajajallianz.com/",
-    badge: null,
-    logo: "public/logos/bajaj.png",
+    logo: "/logos/zurich.png",
   },
   {
     id: "tataaig",
@@ -41,8 +31,19 @@ const providers = [
     action: "external" as const,
     url: "https://taig.in/TAGINS/0d135ab",
     badge: "Popular",
-    logo: "public/logos/tataaig.png",
+    logo: "/logos/tataaig.png",
   },
+  {
+    id: "bajaj",
+    name: "Bajaj Allianz",
+    description:
+      "Trusted insurance from one of India's leading providers.",
+    action: "external" as const,
+    url: "https://www.bajajallianz.com/",
+    badge: null,
+    logo: "/logos/bajaj.png",
+  },
+ 
 ];
 
 const InsuranceProviders = () => {
