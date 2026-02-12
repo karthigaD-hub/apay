@@ -11,7 +11,7 @@ const providers = [
     action: "internal" as const,
     path: "/indusind",
     badge: "Recommended",
-    logo: "/logos/indusind.png",
+    logo: "/logos/Indusind.png",
   },
   {
     id: "zurich",
