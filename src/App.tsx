@@ -7,7 +7,7 @@ import Landing from "./pages/Landing";
 import InsuranceProviders from "./pages/InsuranceProviders";
 import IndusIndFlow from "./pages/IndusIndFlow";
 import NotFound from "./pages/NotFound";
-
+import InsuranceTypes from "./pages/InsuranceTypes";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -18,6 +18,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/insurance-types" element={<InsuranceTypes />} />
           <Route path="/insurance" element={<InsuranceProviders />} />
           <Route path="/indusind" element={<IndusIndFlow />} />
           <Route path="*" element={<NotFound />} />

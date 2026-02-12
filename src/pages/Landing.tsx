@@ -27,7 +27,7 @@ const Landing = () => {
 
   const handleClick = (item: (typeof menuItems)[0]) => {
     if (!item.dummy) {
-      navigate("/insurance");
+      navigate("/insurance-types");
     }
   };
 
