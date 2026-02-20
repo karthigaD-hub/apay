@@ -9,7 +9,9 @@ interface Props {
   onNext: (details: UserDetails) => void;
 }
 
+/* ---------------- INITIAL DATA ---------------- */
 const initialDetails: UserDetails = {
+  salutation: "",
   fullName: "",
   email: "",
   phone: "",
@@ -18,6 +20,7 @@ const initialDetails: UserDetails = {
   city: "",
   state: "",
   pincode: "",
+
   vehicleMake: "",
   vehicleModel: "",
   vehicleYear: "",
@@ -25,10 +28,13 @@ const initialDetails: UserDetails = {
   engineNo: "",
   chassisNo: "",
   fuelType: "Petrol",
+
   previousPolicyNo: "",
+  previousInsurer: "",
+  policyExpiryDate: "",
 };
 
-/* ✅ MOVE FIELD COMPONENT OUTSIDE */
+/* ---------------- FIELD COMPONENT ---------------- */
 interface FieldProps {
   label: string;
   value: string;
@@ -47,18 +53,19 @@ const Field = ({
   onChange,
 }: FieldProps) => (
   <div className="space-y-1.5">
-    <Label className="text-xs font-medium text-foreground">{label}</Label>
+    <Label className="text-xs font-medium">{label}</Label>
     <Input
       type={type}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className={`h-11 text-sm ${error ? "border-destructive" : ""}`}
+      className={`h-11 ${error ? "border-red-500" : ""}`}
     />
-    {error && <p className="text-[11px] text-destructive">{error}</p>}
+    {error && <p className="text-xs text-red-500">{error}</p>}
   </div>
 );
 
+/* ---------------- MAIN COMPONENT ---------------- */
 const UserDetailsForm = ({ onNext }: Props) => {
   const [form, setForm] = useState<UserDetails>(initialDetails);
   const [errors, setErrors] = useState<
@@ -73,23 +80,13 @@ const UserDetailsForm = ({ onNext }: Props) => {
   const validate = () => {
     const e: typeof errors = {};
 
-    if (!form.fullName.trim()) e.fullName = "Required";
-    if (!form.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/))
-      e.email = "Invalid email";
+    if (!form.fullName) e.fullName = "Required";
+    if (!form.email) e.email = "Required";
     if (!form.phone.match(/^\d{10}$/))
-      e.phone = "Enter 10 digit number";
-    if (!form.dob) e.dob = "Required";
-    if (!form.address.trim()) e.address = "Required";
-    if (!form.city.trim()) e.city = "Required";
-    if (!form.state.trim()) e.state = "Required";
-    if (!form.pincode.match(/^\d{6}$/))
-      e.pincode = "Enter 6 digit pincode";
-    if (!form.vehicleMake.trim()) e.vehicleMake = "Required";
-    if (!form.vehicleModel.trim()) e.vehicleModel = "Required";
-    if (!form.vehicleYear.trim()) e.vehicleYear = "Required";
-    if (!form.registrationNo.trim()) e.registrationNo = "Required";
-    if (!form.engineNo.trim()) e.engineNo = "Required";
-    if (!form.chassisNo.trim()) e.chassisNo = "Required";
+      e.phone = "Enter valid number";
+    if (!form.registrationNo) e.registrationNo = "Required";
+    if (!form.engineNo) e.engineNo = "Required";
+    if (!form.chassisNo) e.chassisNo = "Required";
 
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -100,185 +97,133 @@ const UserDetailsForm = ({ onNext }: Props) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+      
       {/* PERSONAL DETAILS */}
-      <div>
-        <h2 className="text-lg font-bold text-foreground">
-          Personal Details
-        </h2>
-        <p className="text-xs text-muted-foreground mt-1">
-          Enter your personal information
-        </p>
-      </div>
-
       <div className="apay-card p-4 space-y-4">
+        <h2 className="font-bold text-lg">Personal Details</h2>
+
+        {/* Salutation */}
+        <div className="space-y-1.5">
+          <Label className="text-xs">Salutation</Label>
+          <select
+            value={form.salutation}
+            onChange={(e) => update("salutation", e.target.value)}
+            className="w-full h-11 border rounded-md px-3"
+          >
+            <option value="">Select</option>
+            <option>Mr</option>
+            <option>Mrs</option>
+            <option>Ms</option>
+          </select>
+        </div>
+
         <Field
           label="Full Name"
           value={form.fullName}
           error={errors.fullName}
-          placeholder="Enter full name"
-          onChange={(val) => update("fullName", val)}
+          onChange={(v) => update("fullName", v)}
         />
 
         <div className="grid grid-cols-2 gap-3">
           <Field
             label="Email"
-            type="email"
             value={form.email}
             error={errors.email}
-            placeholder="email@example.com"
-            onChange={(val) => update("email", val)}
+            onChange={(v) => update("email", v)}
           />
           <Field
             label="Phone"
-            type="tel"
             value={form.phone}
             error={errors.phone}
-            placeholder="10 digit number"
-            onChange={(val) => update("phone", val)}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <Field
-            label="Date of Birth"
-            type="date"
-            value={form.dob}
-            error={errors.dob}
-            onChange={(val) => update("dob", val)}
-          />
-          <Field
-            label="Pincode"
-            value={form.pincode}
-            error={errors.pincode}
-            placeholder="6 digit pincode"
-            onChange={(val) => update("pincode", val)}
+            onChange={(v) => update("phone", v)}
           />
         </div>
 
         <Field
+          label="DOB"
+          type="date"
+          value={form.dob}
+          onChange={(v) => update("dob", v)}
+        />
+
+        <Field
           label="Address"
           value={form.address}
-          error={errors.address}
-          placeholder="Full address"
-          onChange={(val) => update("address", val)}
+          onChange={(v) => update("address", v)}
         />
 
         <div className="grid grid-cols-2 gap-3">
-          <Field
-            label="City"
-            value={form.city}
-            error={errors.city}
-            placeholder="City"
-            onChange={(val) => update("city", val)}
-          />
-          <Field
-            label="State"
-            value={form.state}
-            error={errors.state}
-            placeholder="State"
-            onChange={(val) => update("state", val)}
-          />
+          <Field label="City" value={form.city} onChange={(v) => update("city", v)} />
+          <Field label="State" value={form.state} onChange={(v) => update("state", v)} />
         </div>
+
+        <Field
+          label="Pincode"
+          value={form.pincode}
+          onChange={(v) => update("pincode", v)}
+        />
       </div>
 
       {/* VEHICLE DETAILS */}
-      <div>
-        <h2 className="text-lg font-bold text-foreground">
-          Vehicle Details
-        </h2>
-        <p className="text-xs text-muted-foreground mt-1">
-          Enter vehicle registration info
-        </p>
-      </div>
-
       <div className="apay-card p-4 space-y-4">
+        <h2 className="font-bold text-lg">Vehicle Details</h2>
+
         <div className="grid grid-cols-2 gap-3">
-          <Field
-            label="Vehicle Make"
-            value={form.vehicleMake}
-            error={errors.vehicleMake}
-            placeholder="e.g. Maruti"
-            onChange={(val) => update("vehicleMake", val)}
-          />
-          <Field
-            label="Vehicle Model"
-            value={form.vehicleModel}
-            error={errors.vehicleModel}
-            placeholder="e.g. Swift"
-            onChange={(val) => update("vehicleModel", val)}
-          />
+          <Field label="Make" value={form.vehicleMake} onChange={(v) => update("vehicleMake", v)} />
+          <Field label="Model" value={form.vehicleModel} onChange={(v) => update("vehicleModel", v)} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field
-            label="Year of Manufacture"
-            value={form.vehicleYear}
-            error={errors.vehicleYear}
-            placeholder="e.g. 2023"
-            onChange={(val) => update("vehicleYear", val)}
-          />
-          <Field
-            label="Registration No"
-            value={form.registrationNo}
-            error={errors.registrationNo}
-            placeholder="e.g. MH01AB1234"
-            onChange={(val) => update("registrationNo", val)}
-          />
+          <Field label="Year" value={form.vehicleYear} onChange={(v) => update("vehicleYear", v)} />
+          <Field label="Registration No" value={form.registrationNo} error={errors.registrationNo} onChange={(v) => update("registrationNo", v)} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field
-            label="Engine No"
-            value={form.engineNo}
-            error={errors.engineNo}
-            placeholder="Engine number"
-            onChange={(val) => update("engineNo", val)}
-          />
-          <Field
-            label="Chassis No"
-            value={form.chassisNo}
-            error={errors.chassisNo}
-            placeholder="Chassis number"
-            onChange={(val) => update("chassisNo", val)}
-          />
+          <Field label="Engine No" value={form.engineNo} error={errors.engineNo} onChange={(v) => update("engineNo", v)} />
+          <Field label="Chassis No" value={form.chassisNo} error={errors.chassisNo} onChange={(v) => update("chassisNo", v)} />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <Label className="text-xs font-medium text-foreground">
-              Fuel Type
-            </Label>
-            <select
-              value={form.fuelType}
-              onChange={(e) => update("fuelType", e.target.value)}
-              className="w-full h-11 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option>Petrol</option>
-              <option>Diesel</option>
-              <option>CNG</option>
-              <option>Electric</option>
-            </select>
-          </div>
-
-          <Field
-            label="Previous Policy No"
-            value={form.previousPolicyNo}
-            error={errors.previousPolicyNo}
-            placeholder="Optional"
-            onChange={(val) => update("previousPolicyNo", val)}
-          />
+        <div className="space-y-1.5">
+          <Label className="text-xs">Fuel Type</Label>
+          <select
+            value={form.fuelType}
+            onChange={(e) => update("fuelType", e.target.value)}
+            className="w-full h-11 border rounded-md px-3"
+          >
+            <option>Petrol</option>
+            <option>Diesel</option>
+            <option>CNG</option>
+            <option>Electric</option>
+          </select>
         </div>
       </div>
 
-      <Button
-        onClick={handleSubmit}
-        className="w-full h-12 text-base font-semibold apay-gradient text-primary-foreground hover:opacity-90"
-      >
+      {/* PREVIOUS POLICY */}
+      <div className="apay-card p-4 space-y-4">
+        <h2 className="font-bold text-lg">Previous Policy</h2>
+
+        <Field
+          label="Previous Policy No"
+          value={form.previousPolicyNo}
+          onChange={(v) => update("previousPolicyNo", v)}
+        />
+
+        <Field
+          label="Previous Insurer"
+          value={form.previousInsurer}
+          onChange={(v) => update("previousInsurer", v)}
+        />
+
+        <Field
+          label="Policy Expiry Date"
+          type="date"
+          value={form.policyExpiryDate}
+          onChange={(v) => update("policyExpiryDate", v)}
+        />
+      </div>
+
+      <Button onClick={handleSubmit} className="w-full h-12">
         Next — Select Coverage
       </Button>
     </motion.div>

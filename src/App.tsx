@@ -3,29 +3,48 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+// Pages
 import Landing from "./pages/Landing";
-import InsuranceProviders from "./pages/InsuranceProviders";
-import IndusIndFlow from "./pages/IndusIndFlow";
-import NotFound from "./pages/NotFound";
 import InsuranceTypes from "./pages/InsuranceTypes";
+import InsuranceProviders from "./pages/InsuranceProviders";
+import IndusIndFlow from "./pages/InsuranceFlow";
+import NotFound from "./pages/NotFound";
+import PaymentSuccess from "./pages/PaymentSuccess";
+
+// React Query client
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/insurance-types" element={<InsuranceTypes />} />
-          <Route path="/insurance" element={<InsuranceProviders />} />
-          <Route path="/indusind" element={<IndusIndFlow />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        {/* Toasts */}
+        <Toaster />
+        <Sonner />
+
+        {/* Routing */}
+        <BrowserRouter>
+          <Routes>
+            {/* Landing Page */}
+            <Route path="/" element={<Landing />} />
+
+            {/* When user clicks Insurance from Landing */}
+            <Route path="/insurance-types" element={<InsuranceTypes />} />
+
+            {/* When user selects Motor/Health etc */}
+            <Route path="/insurance" element={<InsuranceProviders />} />
+
+            {/* When user clicks IndusInd provider */}
+            <Route path="/indusind" element={<IndusIndFlow />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
