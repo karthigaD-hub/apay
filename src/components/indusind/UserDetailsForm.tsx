@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { UserDetails } from "@/pages/IndusIndFlow";
+import { loadDraft, useSaveDraft } from "../../hooks/useIndusindDraft";
+import { IndusindDraft } from "../../types/IndusIndDraft";
 
 interface Props {
   onNext: (details: UserDetails) => void;
@@ -72,6 +74,30 @@ const UserDetailsForm = ({ onNext }: Props) => {
     Partial<Record<keyof UserDetails, string>>
   >({});
 
+  /**
+   * ---------------------------
+   * Load Draft on Page Open
+   * ---------------------------
+   */
+  useEffect(() => {
+    const draft = loadDraft<IndusindDraft>();
+    if (draft?.userDetails) {
+      setForm(draft.userDetails);
+    }
+  }, []);
+
+  /**
+   * ---------------------------
+   * Auto Save (Google style)
+   * ---------------------------
+   */
+  const existingDraft = loadDraft<IndusindDraft>() || {};
+
+  useSaveDraft<IndusindDraft>({
+    ...existingDraft,
+    userDetails: form,
+  });
+
   const update = (key: keyof UserDetails, value: string) => {
     setForm((f) => ({ ...f, [key]: value }));
     if (errors[key]) setErrors((e) => ({ ...e, [key]: undefined }));
@@ -97,13 +123,15 @@ const UserDetailsForm = ({ onNext }: Props) => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-6"
+    >
       {/* PERSONAL DETAILS */}
       <div className="apay-card p-4 space-y-4">
         <h2 className="font-bold text-lg">Personal Details</h2>
 
-        {/* Salutation */}
         <div className="space-y-1.5">
           <Label className="text-xs">Salutation</Label>
           <select
@@ -154,8 +182,16 @@ const UserDetailsForm = ({ onNext }: Props) => {
         />
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label="City" value={form.city} onChange={(v) => update("city", v)} />
-          <Field label="State" value={form.state} onChange={(v) => update("state", v)} />
+          <Field
+            label="City"
+            value={form.city}
+            onChange={(v) => update("city", v)}
+          />
+          <Field
+            label="State"
+            value={form.state}
+            onChange={(v) => update("state", v)}
+          />
         </div>
 
         <Field
@@ -170,18 +206,45 @@ const UserDetailsForm = ({ onNext }: Props) => {
         <h2 className="font-bold text-lg">Vehicle Details</h2>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Make" value={form.vehicleMake} onChange={(v) => update("vehicleMake", v)} />
-          <Field label="Model" value={form.vehicleModel} onChange={(v) => update("vehicleModel", v)} />
+          <Field
+            label="Make"
+            value={form.vehicleMake}
+            onChange={(v) => update("vehicleMake", v)}
+          />
+          <Field
+            label="Model"
+            value={form.vehicleModel}
+            onChange={(v) => update("vehicleModel", v)}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Year" value={form.vehicleYear} onChange={(v) => update("vehicleYear", v)} />
-          <Field label="Registration No" value={form.registrationNo} error={errors.registrationNo} onChange={(v) => update("registrationNo", v)} />
+          <Field
+            label="Year"
+            value={form.vehicleYear}
+            onChange={(v) => update("vehicleYear", v)}
+          />
+          <Field
+            label="Registration No"
+            value={form.registrationNo}
+            error={errors.registrationNo}
+            onChange={(v) => update("registrationNo", v)}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Engine No" value={form.engineNo} error={errors.engineNo} onChange={(v) => update("engineNo", v)} />
-          <Field label="Chassis No" value={form.chassisNo} error={errors.chassisNo} onChange={(v) => update("chassisNo", v)} />
+          <Field
+            label="Engine No"
+            value={form.engineNo}
+            error={errors.engineNo}
+            onChange={(v) => update("engineNo", v)}
+          />
+          <Field
+            label="Chassis No"
+            value={form.chassisNo}
+            error={errors.chassisNo}
+            onChange={(v) => update("chassisNo", v)}
+          />
         </div>
 
         <div className="space-y-1.5">

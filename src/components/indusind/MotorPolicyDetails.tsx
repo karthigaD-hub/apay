@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { fetchMotorPolicy, type MotorPolicy } from "@/services/mockApi";
+import { loadDraft, useSaveDraft } from "../../hooks/useIndusindDraft";
+import { IndusindDraft } from "../../types/IndusIndDraft";
 
 interface Props {
   onNext: () => void;
@@ -17,31 +19,83 @@ const formatValue = (val: unknown) => {
 const sections: { title: string; keys: (keyof MotorPolicy)[] }[] = [
   {
     title: "Premium Summary",
-    keys: ["NetPremium", "BasicPremium", "OriginalPremium", "EndorsedPremium", "FinalPremium", "TotalPremium", "TotalOD", "TotalODPremium", "TotalScheduleODPremium", "TotalLiabilityPremium", "TotalPackagePremium", "TotalAddonPremium", "TotalChangeAmount"],
+    keys: [
+      "NetPremium",
+      "BasicPremium",
+      "OriginalPremium",
+      "EndorsedPremium",
+      "FinalPremium",
+      "TotalPremium",
+      "TotalOD",
+      "TotalODPremium",
+      "TotalScheduleODPremium",
+      "TotalLiabilityPremium",
+      "TotalPackagePremium",
+      "TotalAddonPremium",
+      "TotalChangeAmount",
+    ],
   },
   {
     title: "Tax & Cess",
-    keys: ["ECessAmount", "HECessAmount", "ServiceTaxRate", "ServiceTaxAmount", "EducationalCessRate", "HigherEducationalCessRate", "SwachhBharatCess", "SwachhBharatCessRate", "KrishiKalyanCess", "KrishiKalyanCessRate", "SalesTaxAmount", "SalesTaxRate", "SurchargeAmount", "SurchrgeRate"],
+    keys: [
+      "ECessAmount",
+      "HECessAmount",
+      "ServiceTaxRate",
+      "ServiceTaxAmount",
+      "EducationalCessRate",
+      "HigherEducationalCessRate",
+      "SwachhBharatCess",
+      "SwachhBharatCessRate",
+      "KrishiKalyanCess",
+      "KrishiKalyanCessRate",
+      "SalesTaxAmount",
+      "SalesTaxRate",
+      "SurchargeAmount",
+      "SurchrgeRate",
+    ],
   },
   {
     title: "IDV Details",
-    keys: ["IDV", "BodyIDV", "ChassisIDV", "MinIDV", "MaxIDV", "MinBodyIDV", "MaxBodyIDV", "MinChassisIDV", "MaxChassisIDV", "DerivedVehicleIDV", "IDVDepreciationPercentage"],
+    keys: [
+      "IDV",
+      "BodyIDV",
+      "ChassisIDV",
+      "MinIDV",
+      "MaxIDV",
+      "MinBodyIDV",
+      "MaxBodyIDV",
+      "MinChassisIDV",
+      "MaxChassisIDV",
+      "DerivedVehicleIDV",
+      "IDVDepreciationPercentage",
+    ],
   },
   {
     title: "NCB & Claims",
-    keys: ["IsClaimedInLastPolicy", "CurrentYearNCB", "Current2YearNCB", "Current3YearNCB"],
-  },
-  {
-    title: "2-Year Plan",
-    keys: ["NetPremium2Year", "BasicPremium2Year", "FinalPremium2Year", "TotalOD2Year", "TotalODPremium2Year", "TotalLiabilityPremium2Year", "TotalPackagePremium2Year", "TotalAddonPremium2Year", "SecondYearBasicVehicleIDV"],
-  },
-  {
-    title: "3-Year Plan",
-    keys: ["NetPremium3Year", "BasicPremium3Year", "FinalPremium3Year", "TotalOD3Year", "TotalODPremium3Year", "TotalLiabilityPremium3Year", "TotalPackagePremium3Year", "TotalAddonPremium3Year", "ThirdYearBasicVehicleIDV", "FourthYearBasicVehicleIDV", "FifthYearBasicVehicleIDV"],
+    keys: [
+      "IsClaimedInLastPolicy",
+      "CurrentYearNCB",
+      "Current2YearNCB",
+      "Current3YearNCB",
+    ],
   },
   {
     title: "Other Details",
-    keys: ["CompulsoryDeductible", "BasicODwithoutDiscount", "BasicTPPerPaxAmount", "BasicTPAmount", "HevTpDiscount", "InspectionCharges", "InspectionChargesapplicable", "IsEligible", "status", "ProposalNo", "TraceID", "ServiceRequestID", "InvoiceNo"],
+    keys: [
+      "CompulsoryDeductible",
+      "BasicODwithoutDiscount",
+      "BasicTPPerPaxAmount",
+      "BasicTPAmount",
+      "HevTpDiscount",
+      "InspectionCharges",
+      "InspectionChargesapplicable",
+      "IsEligible",
+      "status",
+      "ProposalNo",
+      "TraceID",
+      "ServiceRequestID",
+      "InvoiceNo",
+    ],
   },
 ];
 
@@ -50,12 +104,44 @@ const MotorPolicyDetails = ({ onNext }: Props) => {
   const [loading, setLoading] = useState(true);
   const [openSections, setOpenSections] = useState<Set<number>>(new Set([0]));
 
+  /**
+   * ---------------------------
+   * Load Draft (if exists)
+   * ---------------------------
+   */
   useEffect(() => {
+    const draft = loadDraft<IndusindDraft>();
+    if (draft?.motorPolicy) {
+      setPolicy(draft.motorPolicy);
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * ---------------------------
+   * Fetch Policy if not in draft
+   * ---------------------------
+   */
+  useEffect(() => {
+    if (policy) return;
+
     fetchMotorPolicy().then((data) => {
       setPolicy(data);
       setLoading(false);
     });
-  }, []);
+  }, [policy]);
+
+  /**
+   * ---------------------------
+   * Auto Save (Google style)
+   * ---------------------------
+   */
+  const existingDraft = loadDraft<IndusindDraft>() || {};
+
+  useSaveDraft<IndusindDraft>({
+    ...existingDraft,
+    motorPolicy: policy || undefined,
+  });
 
   const toggleSection = (i: number) => {
     setOpenSections((prev) => {
@@ -69,7 +155,9 @@ const MotorPolicyDetails = ({ onNext }: Props) => {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-secondary" />
-        <p className="text-sm text-muted-foreground">Calculating policy details...</p>
+        <p className="text-sm text-muted-foreground">
+          Calculating policy details...
+        </p>
       </div>
     );
   }
@@ -77,17 +165,27 @@ const MotorPolicyDetails = ({ onNext }: Props) => {
   if (!policy) return null;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-3"
+    >
       <div>
-        <h2 className="text-lg font-bold text-foreground">Motor Policy Details</h2>
-        <p className="text-xs text-muted-foreground mt-1">Review all policy parameters</p>
+        <h2 className="text-lg font-bold text-foreground">
+          Motor Policy Details
+        </h2>
+        <p className="text-xs text-muted-foreground mt-1">
+          Review all policy parameters
+        </p>
       </div>
 
-      {/* Highlight card */}
+      {/* Highlight */}
       <div className="apay-gradient text-primary-foreground rounded-xl p-4 flex items-center justify-between">
         <div>
           <p className="text-xs opacity-70">Final Premium</p>
-          <p className="text-2xl font-bold">₹{policy.FinalPremium.toLocaleString()}</p>
+          <p className="text-2xl font-bold">
+            ₹{policy.FinalPremium.toLocaleString()}
+          </p>
         </div>
         <div className="text-right">
           <p className="text-xs opacity-70">Proposal</p>
@@ -101,13 +199,16 @@ const MotorPolicyDetails = ({ onNext }: Props) => {
             onClick={() => toggleSection(i)}
             className="w-full flex items-center justify-between p-4 text-left"
           >
-            <h3 className="text-sm font-semibold text-foreground">{section.title}</h3>
+            <h3 className="text-sm font-semibold text-foreground">
+              {section.title}
+            </h3>
             {openSections.has(i) ? (
               <ChevronUp className="w-4 h-4 text-muted-foreground" />
             ) : (
               <ChevronDown className="w-4 h-4 text-muted-foreground" />
             )}
           </button>
+
           {openSections.has(i) && (
             <div className="border-t border-border">
               {section.keys.map((key, j) => (
@@ -119,7 +220,8 @@ const MotorPolicyDetails = ({ onNext }: Props) => {
                 >
                   <span className="text-muted-foreground">{String(key)}</span>
                   <span className="font-medium text-foreground text-right">
-                    {typeof policy[key] === "number" && key !== "IDVDepreciationPercentage"
+                    {typeof policy[key] === "number" &&
+                    key !== "IDVDepreciationPercentage"
                       ? `₹${formatValue(policy[key])}`
                       : formatValue(policy[key])}
                   </span>
@@ -130,7 +232,10 @@ const MotorPolicyDetails = ({ onNext }: Props) => {
         </div>
       ))}
 
-      <Button onClick={onNext} className="w-full h-12 text-base font-semibold apay-gradient text-primary-foreground hover:opacity-90">
+      <Button
+        onClick={onNext}
+        className="w-full h-12 text-base font-semibold apay-gradient text-primary-foreground hover:opacity-90"
+      >
         Next — Tax Details
       </Button>
     </motion.div>

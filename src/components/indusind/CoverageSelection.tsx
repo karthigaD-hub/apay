@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Shield, Lock } from "lucide-react";
 import { fetchCoverages, type CoverageItem } from "@/services/mockApi";
+import { IndusindDraft } from "../../types/IndusIndDraft";
+import { loadDraft, useSaveDraft } from "../../hooks/useIndusindDraft";
 
 interface Props {
   selectedCoverages: string[];
@@ -19,7 +21,36 @@ const CoverageSelection = ({
   const [coverages, setCoverages] = useState<CoverageItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch Coverages
+  /**
+   * ---------------------------
+   * Load Draft on Page Open
+   * ---------------------------
+   */
+  useEffect(() => {
+    const draft = loadDraft<IndusindDraft>();
+    if (draft?.coverage && draft.coverage.length > 0) {
+      onSelectionChange(draft.coverage);
+    }
+  }, [onSelectionChange]);
+
+  /**
+   * ---------------------------
+   * Auto Save (Google Form style)
+   * Uses your custom hook
+   * ---------------------------
+   */
+  const existingDraft = loadDraft<IndusindDraft>() || {};
+
+  useSaveDraft<IndusindDraft>({
+    ...existingDraft,
+    coverage: selectedCoverages,
+  });
+
+  /**
+   * ---------------------------
+   * Fetch Coverages
+   * ---------------------------
+   */
   useEffect(() => {
     const loadCoverages = async () => {
       try {
@@ -44,7 +75,9 @@ const CoverageSelection = ({
     loadCoverages();
   }, [onSelectionChange]);
 
-  // Toggle coverage selection
+  /**
+   * Toggle coverage
+   */
   const toggleCoverage = (id: string, mandatory: boolean) => {
     if (mandatory) return;
 
@@ -66,7 +99,6 @@ const CoverageSelection = ({
     );
   }
 
-  // Calculate selected premium
   const totalPremium = coverages
     .filter((c) => selectedCoverages.includes(c.CoverageID))
     .reduce((sum, c) => sum + (c.AMOUNT || 0), 0);
@@ -103,7 +135,6 @@ const CoverageSelection = ({
               }
             >
               <div className="flex items-start gap-3">
-                {/* Checkbox */}
                 <Checkbox
                   checked={selected}
                   disabled={cov.ISMANDATORY}
@@ -113,7 +144,6 @@ const CoverageSelection = ({
                   className="mt-0.5"
                 />
 
-                {/* Details */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-semibold text-foreground">
@@ -128,52 +158,13 @@ const CoverageSelection = ({
                     )}
                   </div>
 
-                  {/* Description */}
                   {cov.lstPACoverBenefits && (
                     <p className="text-xs text-muted-foreground mt-1">
                       {cov.lstPACoverBenefits}
                     </p>
                   )}
-
-                  {/* XML Additional Fields (Mentor Safe Section) */}
-                  <div className="flex flex-wrap gap-2 mt-2 text-[10px]">
-                    <span className="bg-muted px-2 py-0.5 rounded">
-                      ID: {cov.CoverageID}
-                    </span>
-
-                    {cov.TypeofCover && (
-                      <span className="bg-muted px-2 py-0.5 rounded">
-                        Type: {cov.TypeofCover}
-                      </span>
-                    )}
-
-                    {cov.rate && (
-                      <span className="bg-muted px-2 py-0.5 rounded">
-                        Rate: {cov.rate}%
-                      </span>
-                    )}
-
-                    {cov.LISTVALUE && (
-                      <span className="bg-muted px-2 py-0.5 rounded">
-                        {cov.LISTVALUE}
-                      </span>
-                    )}
-
-                    {cov.DerivedVehicleIDV > 0 && (
-                      <span className="bg-muted px-2 py-0.5 rounded">
-                        IDV: ₹{cov.DerivedVehicleIDV.toLocaleString()}
-                      </span>
-                    )}
-
-                    {cov.SumInsured && (
-                      <span className="bg-muted px-2 py-0.5 rounded">
-                        Sum Insured: ₹{cov.SumInsured.toLocaleString()}
-                      </span>
-                    )}
-                  </div>
                 </div>
 
-                {/* Amount */}
                 <div className="text-right flex-shrink-0">
                   <p className="text-base font-bold text-foreground">
                     ₹{(cov.AMOUNT || 0).toLocaleString()}
@@ -185,7 +176,7 @@ const CoverageSelection = ({
         })}
       </div>
 
-      {/* Selected Premium Summary */}
+      {/* Premium */}
       <div className="apay-card p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Shield className="w-5 h-5 text-secondary" />
@@ -198,7 +189,7 @@ const CoverageSelection = ({
         </span>
       </div>
 
-      {/* Next Button */}
+      {/* Next */}
       <Button
         onClick={onNext}
         disabled={selectedCoverages.length === 0}

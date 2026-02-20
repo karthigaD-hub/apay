@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { fetchTaxComponents, type TaxComponent } from "@/services/mockApi";
+import { loadDraft, useSaveDraft } from "../../hooks/useIndusindDraft";
+import { IndusindDraft } from "../../types/IndusIndDraft";
 
 interface Props {
   onNext: () => void;
@@ -12,6 +14,11 @@ const TaxComponents = ({ onNext }: Props) => {
   const [taxes, setTaxes] = useState<TaxComponent[]>([]);
   const [loading, setLoading] = useState(true);
 
+  /**
+   * ---------------------------
+   * Fetch Tax Data
+   * ---------------------------
+   */
   useEffect(() => {
     fetchTaxComponents().then((data) => {
       setTaxes(data);
@@ -19,11 +26,26 @@ const TaxComponents = ({ onNext }: Props) => {
     });
   }, []);
 
+  /**
+   * ---------------------------
+   * Auto Save (Google Form style)
+   * Saves when taxes are loaded
+   * ---------------------------
+   */
+  const existingDraft = loadDraft<IndusindDraft>() || {};
+
+  useSaveDraft<IndusindDraft>({
+    ...existingDraft,
+    taxComponents: taxes,
+  });
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-secondary" />
-        <p className="text-sm text-muted-foreground">Loading tax components...</p>
+        <p className="text-sm text-muted-foreground">
+          Loading tax components...
+        </p>
       </div>
     );
   }
@@ -31,10 +53,18 @@ const TaxComponents = ({ onNext }: Props) => {
   const totalAmount = taxes.reduce((s, t) => s + t.Amount, 0);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-4"
+    >
       <div>
-        <h2 className="text-lg font-bold text-foreground">Tax Components</h2>
-        <p className="text-xs text-muted-foreground mt-1">Breakdown of applicable taxes</p>
+        <h2 className="text-lg font-bold text-foreground">
+          Tax Components
+        </h2>
+        <p className="text-xs text-muted-foreground mt-1">
+          Breakdown of applicable taxes
+        </p>
       </div>
 
       <div className="apay-card overflow-hidden">
@@ -47,6 +77,7 @@ const TaxComponents = ({ onNext }: Props) => {
           <span className="text-right">2 Years</span>
           <span className="text-right">3 Years</span>
         </div>
+
         {taxes.map((tax, i) => (
           <div
             key={tax.TaxComponent}
@@ -54,24 +85,52 @@ const TaxComponents = ({ onNext }: Props) => {
               i % 2 === 0 ? "bg-background" : "bg-muted/30"
             }`}
           >
-            <span className="text-muted-foreground font-medium col-span-1">{tax.TaxComponent}</span>
-            <span className="text-foreground col-span-1 truncate">{tax.TaxName}</span>
-            <span className="text-right text-foreground">{tax.Rate}%</span>
-            <span className="text-right font-medium text-foreground">₹{tax.Amount.toLocaleString()}</span>
-            <span className="text-right text-muted-foreground">₹{tax.TaxComponent2YEARS.toLocaleString()}</span>
-            <span className="text-right text-muted-foreground">₹{tax.TaxComponent3YEARS.toLocaleString()}</span>
+            <span className="text-muted-foreground font-medium col-span-1">
+              {tax.TaxComponent}
+            </span>
+            <span className="text-foreground col-span-1 truncate">
+              {tax.TaxName}
+            </span>
+            <span className="text-right text-foreground">
+              {tax.Rate}%
+            </span>
+            <span className="text-right font-medium text-foreground">
+              ₹{tax.Amount.toLocaleString()}
+            </span>
+            <span className="text-right text-muted-foreground">
+              ₹{tax.TaxComponent2YEARS.toLocaleString()}
+            </span>
+            <span className="text-right text-muted-foreground">
+              ₹{tax.TaxComponent3YEARS.toLocaleString()}
+            </span>
           </div>
         ))}
-        {/* Total row */}
+
+        {/* Total */}
         <div className="grid grid-cols-6 gap-1 px-3 py-3 bg-accent text-[11px] font-bold border-t border-border">
-          <span className="col-span-3 text-accent-foreground">Total Tax</span>
-          <span className="text-right text-accent-foreground">₹{totalAmount.toLocaleString()}</span>
-          <span className="text-right text-muted-foreground">₹{taxes.reduce((s, t) => s + t.TaxComponent2YEARS, 0).toLocaleString()}</span>
-          <span className="text-right text-muted-foreground">₹{taxes.reduce((s, t) => s + t.TaxComponent3YEARS, 0).toLocaleString()}</span>
+          <span className="col-span-3 text-accent-foreground">
+            Total Tax
+          </span>
+          <span className="text-right text-accent-foreground">
+            ₹{totalAmount.toLocaleString()}
+          </span>
+          <span className="text-right text-muted-foreground">
+            ₹{taxes
+              .reduce((s, t) => s + t.TaxComponent2YEARS, 0)
+              .toLocaleString()}
+          </span>
+          <span className="text-right text-muted-foreground">
+            ₹{taxes
+              .reduce((s, t) => s + t.TaxComponent3YEARS, 0)
+              .toLocaleString()}
+          </span>
         </div>
       </div>
 
-      <Button onClick={onNext} className="w-full h-12 text-base font-semibold apay-gradient text-primary-foreground hover:opacity-90">
+      <Button
+        onClick={onNext}
+        className="w-full h-12 text-base font-semibold apay-gradient text-primary-foreground hover:opacity-90"
+      >
         Next — View Quote
       </Button>
     </motion.div>

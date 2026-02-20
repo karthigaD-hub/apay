@@ -21,7 +21,7 @@ const providers = [
     width: 119,
     height: 41,
     action: "external" as const,
-    url: "https://insureswift.zurichkotak.com/",
+    url: "https://insureswift.zurichkotak.com/FIG-GENERAL/#/figpartnerlandingpage?vTokenId=S7D4P1Q",
   },
   {
     id: "tataaig",
